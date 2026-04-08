@@ -6,9 +6,9 @@ A collaborative framework for LEGO Digital Design & Innovation Leadership to exp
 
 ## 🌐 Live Demo
 
-👉 **[Open the Interactive Framework](https://[your-username].github.io/designer-future-roles-framework/)**
+👉 **[Open the Interactive Framework](https://michaelheiderlego.github.io/designer-future-roles-framework/)**
 
-*(Link will be active once you push to GitHub)*
+The site is now live! Share this link with your colleagues to collaborate.
 
 ## 🎯 Overview
 
@@ -60,9 +60,12 @@ This framework helps design teams answer the central question:
 ## 🎯 Features
 
 **Interactive Web App:**
+- ⭕ **Circular view** - Visual concentric circles matching the framework poster
+- 📋 **List view** - Traditional three-column layout for detailed editing
 - ✏️ Add, edit, and delete items in each zone
+- 🔗 **Rich content for AI zone** - Add links, screenshots, and how-tos
 - 📥 Export framework as JSON to share
-- 📤 Import JSON files from colleagues  
+- 📤 Import JSON files from colleagues
 - 💾 Auto-saves to browser localStorage
 - 🎨 Clean, professional interface
 
