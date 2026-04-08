@@ -52,21 +52,35 @@ This framework helps design teams answer the central question:
 
 ## 💾 Data Storage & Collaboration
 
-- All data is stored locally in your browser (localStorage)
-- Export/import JSON files to share across team
-- No server required - fully client-side
-- Perfect for workshops and async collaboration
+**Two modes of collaboration:**
+
+### 🌟 GitHub Collaborative Mode (Recommended)
+- **Real-time team collaboration** - Everyone's changes saved to GitHub
+- **Instant sync** - Refresh to see colleagues' contributions
+- **One source of truth** - All team members see the same data
+- **Authenticate once** - Use GitHub Personal Access Token
+- **Perfect for:** Ongoing team collaboration, workshops, living document
+
+### 💻 Local Mode (Quick Start)
+- Changes saved in your browser only
+- Export/import JSON files to share
+- No authentication needed
+- Perfect for: Personal exploration, offline use
+
+**See [COLLABORATION_GUIDE.md](COLLABORATION_GUIDE.md) for detailed setup instructions**
 
 ## 🎯 Features
 
 **Interactive Web App:**
+- 🔄 **GitHub collaboration** - Real-time team editing with automatic sync
 - ⭕ **Circular view** - Visual concentric circles matching the framework poster
 - 📋 **List view** - Traditional three-column layout for detailed editing
 - ✏️ Add, edit, and delete items in each zone
 - 🔗 **Rich content for AI zone** - Add links, screenshots, and how-tos
+- 🔐 **Authentication** - Connect with GitHub Personal Access Token
 - 📥 Export framework as JSON to share
 - 📤 Import JSON files from colleagues
-- 💾 Auto-saves to browser localStorage
+- 💾 Auto-saves to GitHub or browser localStorage
 - 🎨 Clean, professional interface
 
 **Complete Toolkit:**
