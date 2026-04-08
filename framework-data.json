@@ -1,0 +1,68 @@
+{
+  "core": [
+    {
+      "title": "Moral compass & judgment",
+      "description": "Deciding what's good for people, not just business. Creating healthy habits and meaningful experiences."
+    },
+    {
+      "title": "Envisioning desired futures",
+      "description": "Looking beyond current data patterns to imagine better possibilities. Designing for the world we want."
+    },
+    {
+      "title": "Creating simplicity from chaos",
+      "description": "Distilling complexity into elegant solutions. The ability to say no to feature bloat."
+    },
+    {
+      "title": "Bridge to human experience",
+      "description": "Translating technical capabilities into human benefits. Advocating for end-user needs."
+    },
+    {
+      "title": "The courage to say 'no'",
+      "description": "Defending good design against pressure to compromise. Knowing when 'not now' is the right answer."
+    }
+  ],
+  "checkpoints": [
+    {
+      "title": "Problem definition & scope",
+      "description": "Ensure we're solving the right problem before generating solutions. Set boundaries and success criteria."
+    },
+    {
+      "title": "Concept direction & principles",
+      "description": "Set design direction and guardrails. Choose strategic direction while AI generates variations."
+    },
+    {
+      "title": "Quality judgment & refinement",
+      "description": "Elevate execution from functional to excellent. Judge which refinements truly improve quality."
+    },
+    {
+      "title": "Ethical/human impact review",
+      "description": "Identify and mitigate potential harms. Consider who is affected and how."
+    },
+    {
+      "title": "Simplicity edit",
+      "description": "Final pass to remove everything nonessential. Make hard calls about what to cut."
+    }
+  ],
+  "ai": [
+    {
+      "title": "Ideation & variation generation",
+      "description": "Tools: Midjourney, Figma AI, v0. Let AI generate options, you curate and direct."
+    },
+    {
+      "title": "Research synthesis",
+      "description": "Tools: Claude, Dovetail. Analyze interviews and find patterns, but validate insights yourself."
+    },
+    {
+      "title": "Prototype generation",
+      "description": "Tools: v0, Framer AI. Generate quick prototypes from descriptions, then refine interactions."
+    },
+    {
+      "title": "Prompt engineering for designers",
+      "description": "Learn to brief AI like you'd brief a junior designer: context, constraints, direction, quality criteria."
+    },
+    {
+      "title": "Quality curation framework",
+      "description": "Not all AI output is equal. Develop filters: Ship it / Good foundation / Inspiration only / Reject."
+    }
+  ]
+}

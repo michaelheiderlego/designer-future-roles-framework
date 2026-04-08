@@ -56,6 +56,67 @@
             border-radius: 0.5rem;
         }
 
+        .auth-banner {
+            background: #263238;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .auth-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+        }
+
+        .status-dot.offline {
+            background: #FFC107;
+        }
+
+        .github-btn {
+            background: white;
+            color: #263238;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .github-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .sync-status {
+            font-size: 0.85rem;
+            color: #90a4ae;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
         .view-toggle {
             display: flex;
             gap: 1rem;
@@ -603,10 +664,24 @@
 </head>
 <body>
     <div class="container">
+        <!-- Auth Banner -->
+        <div class="auth-banner">
+            <div class="auth-info">
+                <div class="auth-status">
+                    <span class="status-dot" id="status-dot"></span>
+                    <span id="auth-status-text">Loading...</span>
+                </div>
+            </div>
+            <button class="github-btn" id="auth-btn" onclick="toggleAuth()">
+                <span id="auth-btn-text">Authenticate with GitHub</span>
+            </button>
+        </div>
+
         <header>
             <h1>The Future of Design Skills</h1>
             <p class="subtitle">Our Role in an AI-Augmented World</p>
             <div class="question">What do we WANT our jobs to be?</div>
+            <div class="sync-status" id="sync-status"></div>
         </header>
 
         <div class="view-toggle">
@@ -748,6 +823,16 @@
     </div>
 
     <script>
+        // GitHub Configuration
+        const GITHUB_REPO = 'michaelheiderlego/designer-future-roles-framework'; // Will update after transfer
+        const DATA_FILE = 'framework-data.json';
+        const BRANCH = 'main';
+
+        let githubToken = localStorage.getItem('github_token');
+        let githubUser = null;
+        let useGitHubStorage = false;
+        let lastSha = null;
+
         // Data structure
         let data = {
             core: [],
@@ -835,8 +920,197 @@
             }
         }
 
-        // Load data from localStorage
-        function loadData() {
+        // GitHub API Functions
+        async function loadFromGitHub() {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}?ref=${BRANCH}`, {
+                    headers: githubToken ? {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    } : {
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const fileData = await response.json();
+                    lastSha = fileData.sha;
+                    const content = atob(fileData.content);
+                    data = JSON.parse(content);
+                    updateSyncStatus('✓ Synced with GitHub');
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error loading from GitHub:', error);
+                updateSyncStatus('Using local storage (offline mode)');
+            }
+            return false;
+        }
+
+        async function saveToGitHub() {
+            if (!githubToken || !useGitHubStorage) {
+                return false;
+            }
+
+            try {
+                updateSyncStatus('Saving to GitHub...');
+
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+                const body = {
+                    message: `Update framework data by ${githubUser?.login || 'user'}`,
+                    content: content,
+                    branch: BRANCH
+                };
+
+                if (lastSha) {
+                    body.sha = lastSha;
+                }
+
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    lastSha = result.content.sha;
+                    updateSyncStatus('✓ Saved to GitHub');
+                    return true;
+                } else {
+                    const error = await response.json();
+                    console.error('GitHub save error:', error);
+                    updateSyncStatus(`Error: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+                updateSyncStatus('Error saving to GitHub');
+            }
+            return false;
+        }
+
+        async function authenticateGitHub() {
+            const token = prompt('Enter your GitHub Personal Access Token:\n\n' +
+                'To create one:\n' +
+                '1. Go to github.com/settings/tokens\n' +
+                '2. Click "Generate new token (classic)"\n' +
+                '3. Select scopes: repo\n' +
+                '4. Copy the token and paste here');
+
+            if (token) {
+                githubToken = token;
+                localStorage.setItem('github_token', token);
+
+                // Verify token
+                try {
+                    const response = await fetch('https://api.github.com/user', {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        githubUser = await response.json();
+                        useGitHubStorage = true;
+                        updateAuthStatus();
+                        await loadFromGitHub();
+                        renderAll();
+                        alert(`✓ Authenticated as ${githubUser.login}\n\nYour changes will now be saved to GitHub!`);
+                        return true;
+                    } else {
+                        throw new Error('Invalid token');
+                    }
+                } catch (error) {
+                    alert('Invalid token. Please try again.');
+                    localStorage.removeItem('github_token');
+                    githubToken = null;
+                }
+            }
+            return false;
+        }
+
+        function logout() {
+            if (confirm('Logout from GitHub? Your changes will only be saved locally.')) {
+                localStorage.removeItem('github_token');
+                githubToken = null;
+                githubUser = null;
+                useGitHubStorage = false;
+                updateAuthStatus();
+            }
+        }
+
+        async function toggleAuth() {
+            if (githubToken) {
+                logout();
+            } else {
+                await authenticateGitHub();
+            }
+        }
+
+        function updateAuthStatus() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('auth-status-text');
+            const authBtn = document.getElementById('auth-btn-text');
+
+            if (githubToken && useGitHubStorage) {
+                statusDot.classList.remove('offline');
+                statusText.textContent = `Connected as ${githubUser?.login || 'GitHub User'}`;
+                authBtn.textContent = 'Logout';
+            } else {
+                statusDot.classList.add('offline');
+                statusText.textContent = 'Local mode - changes saved to your browser';
+                authBtn.textContent = 'Connect GitHub';
+            }
+        }
+
+        function updateSyncStatus(message) {
+            const syncStatus = document.getElementById('sync-status');
+            syncStatus.textContent = message;
+            setTimeout(() => {
+                if (syncStatus.textContent === message) {
+                    syncStatus.textContent = '';
+                }
+            }, 3000);
+        }
+
+        // Load data from localStorage or GitHub
+        async function loadData() {
+            // Try GitHub first if token exists
+            if (githubToken) {
+                try {
+                    const response = await fetch('https://api.github.com/user', {
+                        headers: {
+                            'Authorization': `token ${githubToken}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        githubUser = await response.json();
+                        useGitHubStorage = true;
+                        const loaded = await loadFromGitHub();
+                        if (loaded) {
+                            updateAuthStatus();
+                            renderAll();
+                            return;
+                        }
+                    } else {
+                        // Token invalid
+                        localStorage.removeItem('github_token');
+                        githubToken = null;
+                    }
+                } catch (error) {
+                    console.error('Error verifying token:', error);
+                }
+            }
+
+            // Fallback to localStorage
+            updateAuthStatus();
             const saved = localStorage.getItem('designerFramework');
             if (saved) {
                 data = JSON.parse(saved);
@@ -915,9 +1189,13 @@
             renderAll();
         }
 
-        // Save data to localStorage
-        function saveData() {
+        // Save data to localStorage and optionally GitHub
+        async function saveData() {
             localStorage.setItem('designerFramework', JSON.stringify(data));
+
+            if (useGitHubStorage) {
+                await saveToGitHub();
+            }
         }
 
         // Render all zones
@@ -1005,7 +1283,7 @@
         }
 
         // Handle form submission
-        document.getElementById('item-form').addEventListener('submit', (e) => {
+        document.getElementById('item-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const title = document.getElementById('item-title').value.trim();
@@ -1029,7 +1307,7 @@
                 data[currentZone].push(item);
             }
 
-            saveData();
+            await saveData();
             renderAll();
             closeModal();
         });
@@ -1062,10 +1340,10 @@
         }
 
         // Delete item
-        function deleteItem(zone, index) {
+        async function deleteItem(zone, index) {
             if (confirm('Are you sure you want to delete this item?')) {
                 data[zone].splice(index, 1);
-                saveData();
+                await saveData();
                 renderAll();
             }
         }
@@ -1083,17 +1361,17 @@
         }
 
         // Import data
-        function importData(event) {
+        async function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = async (e) => {
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (confirm('This will replace your current data. Continue?')) {
                         data = imported;
-                        saveData();
+                        await saveData();
                         renderAll();
                         alert('Data imported successfully!');
                     }
@@ -1106,11 +1384,11 @@
         }
 
         // Clear all data
-        function clearAllData() {
+        async function clearAllData() {
             if (confirm('This will delete all data. Are you sure?')) {
                 if (confirm('Really sure? This cannot be undone!')) {
                     data = { core: [], checkpoints: [], ai: [] };
-                    saveData();
+                    await saveData();
                     renderAll();
                     selectedZone = '';
                     document.getElementById('details-items').innerHTML = '<div class="empty-state">Click on a circle to view and manage items</div>';
