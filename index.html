@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Designer as Director - Collaborative Framework</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #263238;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #263238;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #546e7a;
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+
+        .question {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #E53935;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #ffebee;
+            border-radius: 0.5rem;
+        }
+
+        .zones-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .zone {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .zone:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+
+        .zone-core {
+            border-top: 5px solid #E53935;
+        }
+
+        .zone-checkpoints {
+            border-top: 5px solid #FB8C00;
+        }
+
+        .zone-ai {
+            border-top: 5px solid #42A5F5;
+        }
+
+        .zone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .zone-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .zone-core .zone-title {
+            color: #E53935;
+        }
+
+        .zone-checkpoints .zone-title {
+            color: #FB8C00;
+        }
+
+        .zone-ai .zone-title {
+            color: #42A5F5;
+        }
+
+        .zone-description {
+            font-size: 0.95rem;
+            color: #546e7a;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .add-btn {
+            background: #263238;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .add-btn:hover {
+            background: #37474f;
+        }
+
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .item {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            transition: background 0.2s;
+        }
+
+        .item:hover {
+            background: #eeeeee;
+        }
+
+        .item-content {
+            flex: 1;
+        }
+
+        .item-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #263238;
+        }
+
+        .item-description {
+            font-size: 0.9rem;
+            color: #546e7a;
+            line-height: 1.5;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+
+        .item-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.25rem;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .item-btn:hover {
+            opacity: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #263238;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #263238;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #42A5F5;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: #42A5F5;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #1e88e5;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #263238;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #bdbdbd;
+        }
+
+        .export-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #90a4ae;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            color: #546e7a;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .zones-container {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>The Designer as Director</h1>
+            <p class="subtitle">Our Future Role in an AI-Augmented World</p>
+            <div class="question">What do we WANT our jobs to be?</div>
+        </header>
+
+        <div class="zones-container">
+            <!-- Core Skills Zone -->
+            <div class="zone zone-core">
+                <div class="zone-header">
+                    <div>
+                        <div class="zone-title">🎯 Human Core</div>
+                    </div>
+                    <button class="add-btn" onclick="openModal('core')">+ Add Skill</button>
+                </div>
+                <div class="zone-description">
+                    The irreplaceable human skills and judgment that define quality design. These never get delegated.
+                </div>
+                <div id="core-items" class="items-list"></div>
+            </div>
+
+            <!-- Checkpoints Zone -->
+            <div class="zone zone-checkpoints">
+                <div class="zone-header">
+                    <div>
+                        <div class="zone-title">🔍 Human Checkpoints</div>
+                    </div>
+                    <button class="add-btn" onclick="openModal('checkpoints')">+ Add Checkpoint</button>
+                </div>
+                <div class="zone-description">
+                    Critical decision gates where designers intervene, review, and direct AI-assisted work.
+                </div>
+                <div id="checkpoints-items" class="items-list"></div>
+            </div>
+
+            <!-- AI Augmented Zone -->
+            <div class="zone zone-ai">
+                <div class="zone-header">
+                    <div>
+                        <div class="zone-title">🤖 AI-Augmented</div>
+                    </div>
+                    <button class="add-btn" onclick="openModal('ai')">+ Add Tool/Tip</button>
+                </div>
+                <div class="zone-description">
+                    Tasks designers orchestrate but don't execute manually. Tips, tricks, and tools for AI-assisted work.
+                </div>
+                <div id="ai-items" class="items-list"></div>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <h3>Share & Collaborate</h3>
+            <p style="margin-top: 0.5rem; color: #546e7a;">Export your team's framework or import from colleagues</p>
+            <div class="export-buttons">
+                <button class="btn-primary" onclick="exportData()">📥 Export JSON</button>
+                <button class="btn-primary" onclick="document.getElementById('import-input').click()">📤 Import JSON</button>
+                <button class="btn-secondary" onclick="clearAllData()">🗑️ Clear All</button>
+            </div>
+            <input type="file" id="import-input" accept=".json" style="display: none;" onchange="importData(event)">
+        </div>
+
+        <footer>
+            <p>LEGO Digital Design & Innovation Leadership | Collaborative Framework</p>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem;">Data is stored locally in your browser. Export to share with colleagues.</p>
+        </footer>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-header" id="modal-title">Add Item</h2>
+            <form id="item-form">
+                <div class="form-group">
+                    <label for="item-title">Title *</label>
+                    <input type="text" id="item-title" required placeholder="e.g., Moral compass & judgment">
+                </div>
+                <div class="form-group">
+                    <label for="item-description">Description</label>
+                    <textarea id="item-description" placeholder="What does this mean? Why is it important? How to develop it?"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data structure
+        let data = {
+            core: [],
+            checkpoints: [],
+            ai: []
+        };
+
+        let currentZone = '';
+        let editingIndex = -1;
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('designerFramework');
+            if (saved) {
+                data = JSON.parse(saved);
+            } else {
+                // Initialize with default data
+                data = {
+                    core: [
+                        {
+                            title: "Moral compass & judgment",
+                            description: "Deciding what's good for people, not just business. Creating healthy habits and meaningful experiences."
+                        },
+                        {
+                            title: "Envisioning desired futures",
+                            description: "Looking beyond current data patterns to imagine better possibilities. Designing for the world we want."
+                        },
+                        {
+                            title: "Creating simplicity from chaos",
+                            description: "Distilling complexity into elegant solutions. The ability to say no to feature bloat."
+                        },
+                        {
+                            title: "Bridge to human experience",
+                            description: "Translating technical capabilities into human benefits. Advocating for end-user needs."
+                        },
+                        {
+                            title: "The courage to say 'no'",
+                            description: "Defending good design against pressure to compromise. Knowing when 'not now' is the right answer."
+                        }
+                    ],
+                    checkpoints: [
+                        {
+                            title: "Problem definition & scope",
+                            description: "Ensure we're solving the right problem before generating solutions. Set boundaries and success criteria."
+                        },
+                        {
+                            title: "Concept direction & principles",
+                            description: "Set design direction and guardrails. Choose strategic direction while AI generates variations."
+                        },
+                        {
+                            title: "Quality judgment & refinement",
+                            description: "Elevate execution from functional to excellent. Judge which refinements truly improve quality."
+                        },
+                        {
+                            title: "Ethical/human impact review",
+                            description: "Identify and mitigate potential harms. Consider who is affected and how."
+                        },
+                        {
+                            title: "Simplicity edit",
+                            description: "Final pass to remove everything nonessential. Make hard calls about what to cut."
+                        }
+                    ],
+                    ai: [
+                        {
+                            title: "Ideation & variation generation",
+                            description: "Tools: Midjourney, Figma AI, v0. Let AI generate options, you curate and direct."
+                        },
+                        {
+                            title: "Research synthesis",
+                            description: "Tools: Claude, Dovetail. Analyze interviews and find patterns, but validate insights yourself."
+                        },
+                        {
+                            title: "Prototype generation",
+                            description: "Tools: v0, Framer AI. Generate quick prototypes from descriptions, then refine interactions."
+                        },
+                        {
+                            title: "Prompt engineering for designers",
+                            description: "Learn to brief AI like you'd brief a junior designer: context, constraints, direction, quality criteria."
+                        },
+                        {
+                            title: "Quality curation framework",
+                            description: "Not all AI output is equal. Develop filters: Ship it / Good foundation / Inspiration only / Reject."
+                        }
+                    ]
+                };
+                saveData();
+            }
+            renderAll();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('designerFramework', JSON.stringify(data));
+        }
+
+        // Render all zones
+        function renderAll() {
+            renderZone('core');
+            renderZone('checkpoints');
+            renderZone('ai');
+        }
+
+        // Render a specific zone
+        function renderZone(zone) {
+            const container = document.getElementById(`${zone}-items`);
+            const items = data[zone];
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state">No items yet. Click "+ Add" to start building your framework.</div>';
+                return;
+            }
+
+            container.innerHTML = items.map((item, index) => `
+                <div class="item">
+                    <div class="item-content">
+                        <div class="item-title">${escapeHtml(item.title)}</div>
+                        ${item.description ? `<div class="item-description">${escapeHtml(item.description)}</div>` : ''}
+                    </div>
+                    <div class="item-actions">
+                        <button class="item-btn" onclick="editItem('${zone}', ${index})" title="Edit">✏️</button>
+                        <button class="item-btn" onclick="deleteItem('${zone}', ${index})" title="Delete">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open modal
+        function openModal(zone) {
+            currentZone = zone;
+            editingIndex = -1;
+            document.getElementById('modal-title').textContent = `Add to ${getZoneLabel(zone)}`;
+            document.getElementById('item-title').value = '';
+            document.getElementById('item-description').value = '';
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('item-title').focus();
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // Get zone label
+        function getZoneLabel(zone) {
+            const labels = {
+                core: 'Human Core',
+                checkpoints: 'Human Checkpoints',
+                ai: 'AI-Augmented Zone'
+            };
+            return labels[zone];
+        }
+
+        // Handle form submission
+        document.getElementById('item-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('item-title').value.trim();
+            const description = document.getElementById('item-description').value.trim();
+
+            if (!title) return;
+
+            const item = { title, description };
+
+            if (editingIndex >= 0) {
+                data[currentZone][editingIndex] = item;
+            } else {
+                data[currentZone].push(item);
+            }
+
+            saveData();
+            renderZone(currentZone);
+            closeModal();
+        });
+
+        // Edit item
+        function editItem(zone, index) {
+            currentZone = zone;
+            editingIndex = index;
+            const item = data[zone][index];
+
+            document.getElementById('modal-title').textContent = `Edit ${getZoneLabel(zone)} Item`;
+            document.getElementById('item-title').value = item.title;
+            document.getElementById('item-description').value = item.description || '';
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('item-title').focus();
+        }
+
+        // Delete item
+        function deleteItem(zone, index) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                data[zone].splice(index, 1);
+                saveData();
+                renderZone(zone);
+            }
+        }
+
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `designer-framework-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Import data
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (confirm('This will replace your current data. Continue?')) {
+                        data = imported;
+                        saveData();
+                        renderAll();
+                        alert('Data imported successfully!');
+                    }
+                } catch (error) {
+                    alert('Error importing file. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset input
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (confirm('This will delete all data. Are you sure?')) {
+                if (confirm('Really sure? This cannot be undone!')) {
+                    data = { core: [], checkpoints: [], ai: [] };
+                    saveData();
+                    renderAll();
+                }
+            }
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Close modal on outside click
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('modal').classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
