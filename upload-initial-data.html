@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Initial Data to Firebase</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #263238;
+        }
+        button {
+            background: #42A5F5;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #1e88e5;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background: #C8E6C9;
+            color: #2E7D32;
+            display: block;
+        }
+        .error {
+            background: #FFCDD2;
+            color: #C62828;
+            display: block;
+        }
+        .info {
+            background: #E3F2FD;
+            color: #1565C0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Upload Initial Data to Firebase</h1>
+        <p>This will populate your Firebase database with the initial framework data.</p>
+
+        <div class="info">
+            <strong>📋 What will be uploaded:</strong>
+            <ul>
+                <li><strong>Core Skills:</strong> 5 items</li>
+                <li><strong>Human Checkpoints:</strong> 5 items</li>
+                <li><strong>AI-Augmented:</strong> 5 items</li>
+            </ul>
+        </div>
+
+        <button onclick="uploadData()">📤 Upload Data to Firebase</button>
+
+        <div id="status" class="status"></div>
+
+        <div class="info" style="margin-top: 30px;">
+            <strong>⚠️ Important:</strong>
+            <ul>
+                <li>This will replace any existing data in Firebase</li>
+                <li>Only run this once to initialize</li>
+                <li>After upload, you can delete this file</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Your Firebase config - SAME as in index.html
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_3faye_ClfQT-UZWG-0v3dokYmqtJxpM",
+            authDomain: "design-skills-lego.firebaseapp.com",
+            databaseURL: "https://design-skills-lego-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "design-skills-lego",
+            storageBucket: "design-skills-lego.firebasestorage.app",
+            messagingSenderId: "594540962275",
+            appId: "1:594540962275:web:4a2c8e1663f66f903300d6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Initial data
+        const initialData = {
+            "core": [
+                {
+                    "title": "Moral compass & judgment",
+                    "description": "Deciding what's good for people, not just business. Creating healthy habits and meaningful experiences."
+                },
+                {
+                    "title": "Envisioning desired futures",
+                    "description": "Looking beyond current data patterns to imagine better possibilities. Designing for the world we want."
+                },
+                {
+                    "title": "Creating simplicity from chaos",
+                    "description": "Distilling complexity into elegant solutions. The ability to say no to feature bloat."
+                },
+                {
+                    "title": "Bridge to human experience",
+                    "description": "Translating technical capabilities into human benefits. Advocating for end-user needs."
+                },
+                {
+                    "title": "The courage to say 'no'",
+                    "description": "Defending good design against pressure to compromise. Knowing when 'not now' is the right answer."
+                }
+            ],
+            "checkpoints": [
+                {
+                    "title": "Problem definition & scope",
+                    "description": "Ensure we're solving the right problem before generating solutions. Set boundaries and success criteria."
+                },
+                {
+                    "title": "Concept direction & principles",
+                    "description": "Set design direction and guardrails. Choose strategic direction while AI generates variations."
+                },
+                {
+                    "title": "Quality judgment & refinement",
+                    "description": "Elevate execution from functional to excellent. Judge which refinements truly improve quality."
+                },
+                {
+                    "title": "Ethical/human impact review",
+                    "description": "Identify and mitigate potential harms. Consider who is affected and how."
+                },
+                {
+                    "title": "Simplicity edit",
+                    "description": "Final pass to remove everything nonessential. Make hard calls about what to cut."
+                }
+            ],
+            "ai": [
+                {
+                    "title": "Ideation & variation generation",
+                    "description": "Tools: Midjourney, Figma AI, v0. Let AI generate options, you curate and direct."
+                },
+                {
+                    "title": "Research synthesis",
+                    "description": "Tools: Claude, Dovetail. Analyze interviews and find patterns, but validate insights yourself."
+                },
+                {
+                    "title": "Prototype generation",
+                    "description": "Tools: v0, Framer AI. Generate quick prototypes from descriptions, then refine interactions."
+                },
+                {
+                    "title": "Prompt engineering for designers",
+                    "description": "Learn to brief AI like you'd brief a junior designer: context, constraints, direction, quality criteria."
+                },
+                {
+                    "title": "Quality curation framework",
+                    "description": "Not all AI output is equal. Develop filters: Ship it / Good foundation / Inspiration only / Reject."
+                }
+            ]
+        };
+
+        async function uploadData() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status';
+            statusDiv.textContent = 'Uploading...';
+            statusDiv.style.display = 'block';
+
+            try {
+                // Upload to Firebase
+                await database.ref('framework').set(initialData);
+
+                // Set metadata
+                await database.ref('lastUpdated').set({
+                    by: 'System',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    action: 'Initial data upload'
+                });
+
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = `
+                    <strong>✅ Success!</strong><br>
+                    Initial data uploaded to Firebase.<br><br>
+                    <strong>Next steps:</strong><br>
+                    1. Open: <a href="https://michaelheiderlego.github.io/designer-future-roles-framework/" target="_blank">https://michaelheiderlego.github.io/designer-future-roles-framework/</a><br>
+                    2. You should see all the items in the circles<br>
+                    3. You can delete this upload file now
+                `;
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `
+                    <strong>❌ Error:</strong><br>
+                    ${error.message}<br><br>
+                    <strong>Common fixes:</strong><br>
+                    1. Check that Firebase config is correct<br>
+                    2. Verify database rules allow writes<br>
+                    3. Check browser console for details
+                `;
+                console.error('Upload error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
