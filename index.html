@@ -56,16 +56,6 @@
             border-radius: 0.5rem;
         }
 
-        .info-banner {
-            background: #E3F2FD;
-            color: #1565C0;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            text-align: center;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
 
         .view-toggle {
             display: flex;
@@ -614,11 +604,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Info Banner -->
-        <div class="info-banner">
-            💡 <strong>Collaborate easily:</strong> Use Export/Import buttons to share your framework with colleagues
-        </div>
-
         <header>
             <h1>The Future of Design Skills</h1>
             <p class="subtitle">Our Role in an AI-Augmented World</p>
@@ -711,16 +696,6 @@
             </div>
         </div>
 
-        <div class="export-section">
-            <h3>Share & Collaborate</h3>
-            <p style="margin-top: 0.5rem; color: #546e7a;">Export your team's framework or import from colleagues</p>
-            <div class="export-buttons">
-                <button class="btn-primary" onclick="exportData()">📥 Export JSON</button>
-                <button class="btn-primary" onclick="document.getElementById('import-input').click()">📤 Import JSON</button>
-                <button class="btn-secondary" onclick="clearAllData()">🗑️ Clear All</button>
-            </div>
-            <input type="file" id="import-input" accept=".json" style="display: none;" onchange="importData(event)">
-        </div>
 
         <footer>
             <p>LEGO Digital Design & Innovation Leadership | Collaborative Framework</p>
@@ -1086,56 +1061,6 @@
             }
         }
 
-        // Export data
-        function exportData() {
-            const dataStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `designer-framework-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // Import data
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (confirm('This will replace your current data. Continue?')) {
-                        data = imported;
-                        saveData();
-                        renderAll();
-                        alert('Data imported successfully!');
-                    }
-                } catch (error) {
-                    alert('Error importing file. Please check the file format.');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = ''; // Reset input
-        }
-
-        // Clear all data
-        function clearAllData() {
-            if (confirm('This will delete all data. Are you sure?')) {
-                if (confirm('Really sure? This cannot be undone!')) {
-                    data = { core: [], checkpoints: [], ai: [] };
-                    saveData();
-                    renderAll();
-                    selectedZone = '';
-                    document.getElementById('details-items').innerHTML = '<div class="empty-state">Click on a circle to view and manage items</div>';
-                    document.getElementById('details-title').textContent = 'Select a zone';
-                    document.getElementById('details-description').textContent = '';
-                    document.getElementById('details-add-btn').style.display = 'none';
-                }
-            }
-        }
 
         // Escape HTML
         function escapeHtml(text) {
